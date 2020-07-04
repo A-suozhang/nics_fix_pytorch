@@ -215,7 +215,11 @@ class StraightThroughStochasticRound(torch.autograd.Function):
         # return x.floor() + (torch.rand(x.shape).to(x.device) > x.ceil() - x)*torch.ones(x.shape).to(x.device)
         # out =  x.floor() + (torch.cuda.FloatTensor(x.shape).uniform_() > x.ceil() - x)*torch.cuda.FloatTensor(x.shape).fill_(1.)
         # out =  x.floor() + ((x.ceil() - x) < torch.cuda.FloatTensor([1]).fill_(np.random.uniform()))*torch.cuda.FloatTensor(x.shape).fill_(1.)
-        noise = torch.FloatTensor(x.shape).uniform_(-0.5,0.5).to(x.device)
+        # noise = torch.FloatTensor(x.shape).uniform_(-0.5,0.5).to(x.device)  this implemention is slow
+        if x.device.type == "cuda":
+            noise = torch.cuda.FloatTensor(x.shape).uniform_(-0.5,0.5)
+        else:
+            noise = torch.FloatTensor(x.shape).uniform_(-0.5,0.5)
         x.add_(noise)
         return x
 
